@@ -23,21 +23,27 @@ All signals were captured on an iPod Photo (color 4th gen) via [clickwheel_break
 Pin ordering is printed on the FPC.
 
 1. VBat (Power input)
-    - Main power input, apparently accepts the full range of a Li-po, but I have only tested using a 3.3V supply 
+    - Main power input, apparently accepts the full range of a Li-po, but I have only tested using a 3.3V supply
 2. SCK (Logic output, tristate)
     - Serial clock, push-pull driven by the clickwheel when sending a packet, hi-Z when idle.
+        - The iPod pulls this line high
 3. CFG1 (Logic input)
     - See [Configuration Pins](#configuration-pins)
 4. BTN1 (Logic output, push-pull)
-    - Idles low, pulses high for approximately 29.83ms when the either the center or menu button is pressed, nothing happens if the button is released. Pulse is sent approximately 15ms after the start of the data packet for the event
+    - Idles low, pulses high for approximately 29.83ms when the either the center or menu button is pressed, nothing happens if the button is released.
+        - Pulse is sent approximately 15ms after the start of the data packet for the event
+        - This pin appears to be used to cold boot the iPod (after pulling power)
 5. ??? (Logic output, push-pull?)
     - Always low, even with a 10k pullup to 3.3V.
     - I can't find a condition that toggles this line
     - This line is NOT connected to GND when power is removed
-6. SDA
-    - Serial data, open drain.
-7. ??? (Logic input?)
-    - Jason's post refers to this as an enable line, but the clickwheel behavior appears unaffected by this pin
+6. MOSI (Logic output, open drain)
+    - Serial data from clickwheel to CPU, open drain.
+    - See [Event Packet](#event-packet)
+    - NOTE: the clickwheel is the master, NOT the main processor
+7. MISO (Logic input)
+    - Serial data from CPU to clickwheel
+    - See [Commands](#commands)
 8. GND
 
 
@@ -69,8 +75,8 @@ The clickwheel will continuously send packets at a rate of ~1.465kHz, when no to
 The fastest rate the clickwheel can send touch/click events appears to be about 67Hz (when swiping fast across the touchwheel).
 This means that there are always at least 21 empty packets between events.
 
-Not really sure why this is useful, but since the data line is open drain maybe it's possible for something to send data into the clickwheel?
-Needs further investigation.
+When CFG1 = 0, the CPU can send commands back to the clickwheel via the MISO pin.
+See [Commands](#commands)
 
 ### CFG1 = 1
 
@@ -93,30 +99,55 @@ When driving the speaker through a low Rds(On) MOSFET switching the 3.3V output 
     - `CPHA` = 0
     - `DORD` = 1 (LSB first)
 
-### First Byte
+### Event Packet
+
+These packets are sent from the clickwheel to the CPU when the clickwheel experiences a event (button press/release, touch down/drag/up)
+
+#### First Byte
 First byte is seems to be a packet header, always `0x35`
 
-### Second Byte
+#### Second Byte
 Second byte is button statuses (1 for pressed)
 
 | MSB |   |      |            |      |      |        | LSB |
 |-----|---|------|------------|------|------|--------|-----|
 | ?   | ? | Menu | Play/Pause | Prev | Next | Center | ?   |
 
-### Third Byte
+#### Third Byte
 Third byte is clickwheel touch location, it starts from `0x00` at the top (Menu button), increases in increments of 2 going clockwise, stopping at `0xBE`, for a total of 96 unique positions.
 > Note: pressing buttons may cause the clickwheel to report random touch locations, these should be ignored (see below)
 
-### Fourth Byte
+#### Fourth Byte
 The fourth byte is clickwheel touch enabled.
 It is `0x00` when there is no finger on the clickwheel (any changes to clickwheel touch location should be ignored).
 It is `0x80` when there is a finger on the clickwheel (clickwheel is reporting correct clickwheel touch location).
+
+### Commands
+
+Commands are sent from the CPU to the clickwheel by setting CFG1 = 0.
+
+#### Sleep
+
+The clickwheel can be put to sleep by sending `95 02 00 C0`.
+
+In this state, the clickwheel will only send event packets for button events, not touch events.
+
+As far as I can tell, the clickwheel will automatically wake when a button is pressed, however the iPod will send some commands to the clickwheel when it wakes up.
+The clickwheel will start emitting touch events after a button is pressed even if MISO is severed after putting the clickwheel to sleep.
+
+#### Init 1???
+
+The CPU will send `1D 01 00 C0` when it wakes from sleep.
+The clickwheel is expected to reply with `75 04 02 00`
+
+#### Init 2???
+
+The CPU will send `95 82 00 C0` after the first init command (only seems to happen if the clickwheel can send its reply)
 
 ## Low Power Modes
 
 The iPod supports two types of low power mode:
 - Power off
-    - Main processor is in deep sleep, waits for interrupt from BTN1, only way to wake from this state is to press the  center or menu button
+    - Main processor is in deep sleep (clickwheel in sleep too?), waits for interrupt from BTN1, only way to wake from this state is to press the  center or menu button
 - Sleep
-    - Not sure what the main processor is doing, any button press will wake from this state, but not a touch event.
-        - How does this work? It doesn't seem like any of the pins react to the other buttons other than the data line. Is the processor really using cycles to decode the data and check if a button has been pressed?
+    - Main processor and clickwheel goes to sleep, touch events do not get emitted, only button events
