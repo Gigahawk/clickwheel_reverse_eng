@@ -151,3 +151,6 @@ The iPod supports two types of low power mode:
     - Main processor is in deep sleep (clickwheel in sleep too?), waits for interrupt from BTN1, only way to wake from this state is to press the  center or menu button
 - Sleep
     - Main processor and clickwheel goes to sleep, touch events do not get emitted, only button events
+- Hold switch
+    - Clickwheel power is disabled (presumably there is a PMOS that cuts power to the clickwheel)
+    - Upon unlocking the hold switch the clickwheel will send a bunch of `AA` to indicate it is ready

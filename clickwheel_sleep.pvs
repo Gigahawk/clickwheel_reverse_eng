@@ -40,9 +40,9 @@ conversion_type=0
 conv_options=0
 
 [5]
-name=MOSI
+name=UNK
 enabled=true
-color=4285780502
+color=4294764879
 conversion_type=0
 conv_options=0
 
@@ -164,8 +164,8 @@ channel3\initial_pin_state=2
 
 [view0]
 scale=3.274574231066683e-6
-v_offset=-390
-splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0L\0\0\x6\v\x1\0\0\0\x1\x1\0\0\0\x1\0)
+v_offset=-319
+splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0L\0\0\a-\x1\0\0\0\x1\x1\0\0\0\x1\0)
 segment_display_mode=3
 offset=22 serialization::archive 14 0 0 0 0 77260903 39820559 71566104 4909653 57065455 53098808 -8 0 0 6
 zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6

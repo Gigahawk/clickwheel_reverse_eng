@@ -40,9 +40,9 @@ conversion_type=0
 conv_options=0
 
 [5]
-name=MOSI
+name=UNK
 enabled=true
-color=4285780502
+color=4294764879
 conversion_type=0
 conv_options=0
 
@@ -164,8 +164,8 @@ channel3\initial_pin_state=2
 
 [view0]
 scale=0.0005519808972209437
-v_offset=-472
-splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0L\0\0\x6\v\x1\0\0\0\x1\x1\0\0\0\x1\0)
+v_offset=-319
+splitter_state=@ByteArray(\0\0\0\xff\0\0\0\x1\0\0\0\x2\0\0\0L\0\0\a-\x1\0\0\0\x1\x1\0\0\0\x1\0)
 segment_display_mode=3
 offset=22 serialization::archive 14 0 0 0 0 6 20542870 29043405 11532214 17854426 86311854 0 0 0 6
 zero_offset=22 serialization::archive 14 0 0 0 0 0 0 0 0 0 0 0 0 0 6
@@ -191,6 +191,7 @@ CFG1\trace_height=26
 BTN1\trace_height=26
 MOSI\trace_height=26
 MISO\trace_height=26
+UNK\trace_height=26
 
 [meta_obj0]
 type=time_marker
@@ -281,5 +282,12 @@ conv_options=0
 name=MISO
 enabled=true
 color=4281623972
+conversion_type=0
+conv_options=0
+
+[UNK]
+name=UNK
+enabled=true
+color=4293776384
 conversion_type=0
 conv_options=0
